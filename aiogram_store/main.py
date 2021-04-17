@@ -58,10 +58,10 @@ def main():
             sys.exit(0)
         print("loading package")
         download_dir(package_url)
-        requirements = os.path.join(STORE_DIR, "packages", name, "requirements.txt")
-        if os.path.exists(requirements):
-            print("installing requirements")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", f'"{requirements}"'])
+        #requirements = os.path.join(STORE_DIR, "packages", name, "requirements.txt")
+        #if os.path.exists(requirements):
+        #    print("installing requirements")
+        #    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", f'"{requirements}"'])
         print("package", name, "installed")
     elif command == "uninstall":
         package = os.path.join(STORE_DIR, "packages", name)
