@@ -39,6 +39,9 @@ class PostgresStorage(BaseStorage):
                         PRIMARY KEY (chat_id, user_id)
                     );"""
                 )
+                await con.execute(
+                    f"""CREATE INDEX IF NOT EXISTS {self._table}_index ON {self._table} (chat_id, user_id);"""
+                )
         return self._db
 
     async def wait_closed(self):
