@@ -31,12 +31,12 @@ class PostgresStorage(BaseStorage):
             async with con.transaction():
                 await con.execute(
                     f"""CREATE TABLE IF NOT EXISTS {self._table} (
-                            chat_id INT,
-                            user_id INT,
+                            chat_id TEXT,
+                            user_id TEXT,
                             data TEXT,
                             state TEXT,
-                            bucket TEXT
-                        PRIMARY KEY (chat_id, user_id),
+                            bucket TEXT,
+                        PRIMARY KEY (chat_id, user_id)
                     );"""
                 )
         return self._db
