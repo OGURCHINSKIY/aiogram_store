@@ -31,8 +31,8 @@ class PostgresStorage(BaseStorage):
             async with con.transaction():
                 await con.execute(
                     f"""CREATE TABLE IF NOT EXISTS {self._table} (
-                            chat_id TEXT,
-                            user_id TEXT,
+                            chat_id INT,
+                            user_id INT,
                             data TEXT,
                             state TEXT,
                             bucket TEXT,
@@ -66,9 +66,8 @@ class PostgresStorage(BaseStorage):
         db = await self.get_db()
         async with db.acquire() as con:
             async with con.transaction():
-                result = await con.fetch(
-                    f"SELECT state FROM {self._table}"
-                    f"WHERE chat_id=$1 and user_id=$2",
+                result = await con.fetchrow(
+                    f"SELECT state FROM {self._table} WHERE chat_id = $1 AND user_id = $2;",
                     chat, user
                 )
                 if result:
@@ -94,13 +93,13 @@ class PostgresStorage(BaseStorage):
         db = await self.get_db()
         async with db.acquire() as con:
             async with con.transaction():
-                result = await con.fetch(
-                    f"SELECT data FROM {self._table}"
-                    f"WHERE chat_id=$1 and user_id=$2",
+                result = await con.fetchrow(
+                    f"SELECT data FROM {self._table} "
+                    f"WHERE chat_id = $1 and user_id = $2;",
                     chat, user
                 )
                 if result:
-                    return json.loads(result.get("data"))
+                    return {} if result.get("data") is None else json.loads(result.get("data"))
                 return default or {}
 
     async def update_data(self, *, chat: Union[str, int, None] = None, user: Union[str, int, None] = None,
@@ -120,13 +119,13 @@ class PostgresStorage(BaseStorage):
         db = await self.get_db()
         async with db.acquire() as con:
             async with con.transaction():
-                result = await con.fetch(
-                    f"SELECT bucket FROM {self._table}"
+                result = await con.fetchrow(
+                    f"SELECT bucket FROM {self._table} "
                     f"WHERE chat_id=$1 and user_id=$2",
                     chat, user
                 )
                 if result:
-                    return json.loads(result.get("bucket"))
+                    return {} if result.get("bucket") is None else json.loads(result.get("bucket"))
                 return default or {}
 
     async def set_bucket(self, *, chat: Union[str, int, None] = None, user: Union[str, int, None] = None,
@@ -172,4 +171,3 @@ class PostgresStorage(BaseStorage):
                     await con.execute(
                         f"UPDATE {self._table} SET bucket = '{{}}'"
                     )
-
